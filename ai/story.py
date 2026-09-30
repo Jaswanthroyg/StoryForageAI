@@ -2,6 +2,7 @@ from google import genai
 from dotenv import load_dotenv
 import os
 import json
+from utils.retry import retry_operation
 
 load_dotenv()
 
@@ -65,10 +66,12 @@ USER STORY:
 
 {story}
 """
-
-        response = self.client.models.generate_content(
-            model="gemini-3.8-flash",
-            contents=prompt
+        response = retry_operation(
+            lambda: self.client.models.generate_content(
+                model="gemini-3.8-flash",
+                contents=prompt
+            ),
+            operation_name="Gemini story Generation"
         )
 
         text = response.text.strip()
